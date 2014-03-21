@@ -54,6 +54,8 @@ gulp.task('glob', function() {
 					else {
 						if (breakpoint) {
 							modifiedClasses.push(breakpoint + "-" + classes[ii]);
+						} else {
+							modifiedClasses.push(classes[ii]);
 						}
 					}
 				}
