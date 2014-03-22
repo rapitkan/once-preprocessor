@@ -70,7 +70,7 @@ gulp.task('glob', function() {
 			for (i = 0; i < matches.length; i += 1) {
 				var pattern2 = new RegExp(/"(.{1,})"/);
 				var match2 = pattern2.exec(matches[i]);
-				var replaceUs = match2[0].substring(1, match2[0].length-1);
+				var replaceUs = match2[0].substring(1, match2[0].length - 1);
 				var allBreakPointClasses = [];
 				for (var breakpoint in breakpoints) {
 					if (breakpoints.hasOwnProperty(breakpoint)) {
