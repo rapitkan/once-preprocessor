@@ -9,7 +9,9 @@ Example:
 
 We have a breakpoint xs: 320px and breakpoint sm: 480px.
 ```html
-In this use case <div class="xs(right)sm(left)">This div is created for example.</div> will be compiled to <div class="xs-right sm-left">This div is created for example.</div> and the specific css markup would be:
+In this use case <div class="xs(right)sm(left)">This div is created for example.</div>
+will be compiled to <div class="xs-right sm-left">This div is created for example.</div>
+and the specific css markup would be:
 
 @media screen and (min-width: 320px) {
 	/*xs-right*/
