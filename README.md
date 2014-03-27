@@ -1,7 +1,28 @@
-once-preprocessor
+Once Preprocessor
 =================
 
 HTML preprocessor for Once CSS framework
+
+Once Preprocessor is an HTML preprocessor that generates atomic CSS styles for you. Idea is to use atomic class markup in HTML templates and preprocessor compiles the templates in background.
+
+Example: 
+
+We have a breakpoint xs: 320px and breakpoint sm: 480px.
+
+In this use case <div class="xs(right)sm(left)">This div is created for example.</div> will be compiled to <div class="xs-right sm-left">This div is created for example.</div> and the specific css markup would be:
+
+@media screen and (min-width: 320px) {
+	/*xs-right*/
+	.xs-right{
+		float: right;
+	}
+}
+@media screen and (min-width: 480px) {
+	/*sm-left*/
+	.sm-left{
+		float: left;
+	}
+}
 
 ## Development environment setup
 
