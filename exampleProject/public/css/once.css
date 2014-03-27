@@ -24,6 +24,17 @@
 	}
 
 }
+@media screen and (min-width: 1200px) {
+	/*xl-inline*/
+	.xl-inline{
+		display: inline;
+	}
+	/*xl-left*/
+	.xl-left{
+		float: left;
+	}
+
+}
 @media screen and (min-width: 480px) {
 	/*sm-left*/
 	.sm-left{
