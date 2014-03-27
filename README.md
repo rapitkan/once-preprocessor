@@ -8,7 +8,7 @@ Once Preprocessor is an HTML preprocessor that generates atomic CSS styles for y
 Example: 
 
 We have a breakpoint xs: 320px and breakpoint sm: 480px.
-
+```html
 In this use case <div class="xs(right)sm(left)">This div is created for example.</div> will be compiled to <div class="xs-right sm-left">This div is created for example.</div> and the specific css markup would be:
 
 @media screen and (min-width: 320px) {
@@ -23,7 +23,7 @@ In this use case <div class="xs(right)sm(left)">This div is created for example.
 		float: left;
 	}
 }
-
+```
 ## Development environment setup
 
 1. Clone Once Preprocessor to your desired location:
