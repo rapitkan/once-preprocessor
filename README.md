@@ -7,7 +7,7 @@ Once Preprocessor is an HTML preprocessor that generates atomic CSS styles for y
 
 Example: 
 
-We have a breakpoint xs: 320px and breakpoint sm: 480px.
+We have the following breakpoints: xs: 320px and sm: 480px.
 ```html
 In this use case <div class="xs(right)sm(left)">This div is created for example.</div>
 will be compiled to <div class="xs-right sm-left">This div is created for example.</div>
