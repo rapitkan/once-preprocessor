@@ -1,21 +1,15 @@
 {
-  "name": "once-preprocessor",
-  "version": "0.1.0",
-  "description": "once-preprocessor",
-  "main": "hello-world-server.njs",
-  "scripts": {
-    "test": "echo \"Error: no test specified! Configure in package.json\" && exit 1"
+  "name": "starter-node-angular",
+  "main": "server.js",
+  "dependencies": {
+    "express": "~3.5.0",
+    "mongoose": "~3.8.3"
   },
-  "repository": "",
-  "keywords": [
-    "node.js",
-    "eclipse",
-    "nodeclipse"
-  ],
-  "author": "",
-  "license": "MIT",
-  "readmeFilename": "README.md",
   "devDependencies": {
-    "gulp": "^3.5.6"
+    "gulp": "^3.5.6",
+    "gulp-clean": "^0.2.4",
+    "gulp-jshint": "^1.5.1",
+    "glob": "^3.2.9",
+    "promise": "^4.0.0"
   }
 }

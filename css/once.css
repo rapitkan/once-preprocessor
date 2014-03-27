@@ -1,0 +1,21 @@
+/*###xs-left*/
+.xs-left {
+	@media screen and (min-width: 320px) {
+		float: left;
+	}
+}
+
+/*###sm-right*/
+.sm-right {
+	@media screen and (min-width: 480px) {
+		float: right;
+	}
+}
+
+/*###sm-bt-no*/
+.sm-bt-no {
+	@media screen and (min-width: 480px) {
+		border-top: none;
+	}
+}
+
