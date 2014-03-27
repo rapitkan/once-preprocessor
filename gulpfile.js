@@ -1,16 +1,51 @@
-var breakpoint;
-var breakpoints = {
-	xs: 320,
-	sm: 480,
-	md: 640,
-	lg: 1024,
-	xl: 1200
+"use strict";
+
+var breakPoints = {
+	xs: "320px",
+	sm: "480px",
+	md: "640px",
+	lg: "1024px",
+	xl: "1200px"
 };
 
+var dictionary = {
+	left: {
+		css: "float: left;"
+	},
+	right: {
+		css: "float: right;"
+	}
+};
+
+var breakPointStyle = function (breakPoint) {
+    var cssMarkUpByBreakPoint = "";
+    for (var key in cssStructure[breakPoint]) {
+        cssMarkUpByBreakPoint += cssStructure[breakPoint][key];
+    }
+    return "\n@media screen and (min-width: " + breakPoints[breakPoint] + ") {\n" + cssMarkUpByBreakPoint + "\n}";
+};
+
+var addStyleClass = function (fullStyleClass, bareStyleClass) {
+	return "\t/*" + fullStyleClass + "*/\n\t." + fullStyleClass + "{\n\t\t" + dictionary[bareStyleClass].css + "\n\t}\n";
+};
 var cssString = "";
-var addedCssClasses = [];
+var cssStructure = {};
+
 var escapeRegExp = function(str) {
 	return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+};
+
+var saveFile = function (fileName, data) {
+
+    var write = Promise.denodeify(fs.writeFile);
+
+    write(fileName, data, "utf-8").then(function () {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log("The file " + fileName + " was saved!");
+        }
+    });
 };
 
 function Template(fileName, content) {
@@ -25,16 +60,15 @@ Template.prototype.compile = function () {
 	var replaceUs = "";
 	var allBreakPointClasses = [];
 	if (matches) {
-		for (i = 0; i < matches.length; i += 1) {
+		for (var i = 0; i < matches.length; i += 1) {
 			var pattern2 = new RegExp(/"(.{1,})"/);
 			var match2 = pattern2.exec(matches[i]);
 			if (match2) {
 				replaceUs = match2[0].substring(1, match2[0].length - 1);
 				allBreakPointClasses = [];
-				for (var breakpoint in breakpoints) {
-					if (breakpoints.hasOwnProperty(breakpoint)) {
-						var breakPointCss = breakPointStyle(breakpoint);
-						var regExp = breakpoint + "\\(.{1,}?\\)";
+				for (var breakPoint in breakPoints) {
+					if (breakPoints.hasOwnProperty(breakPoint)) {
+						var regExp = breakPoint + "\\(.{1,}?\\)";
 						var pattern3 = new RegExp(regExp);
 						var match3 = replaceUs.match(pattern3);
 						if (match3) {
@@ -46,16 +80,15 @@ Template.prototype.compile = function () {
 								var breakPointClasses = [];
 								for (var ii = 0; ii < tmpArr.length; ii += 1) {
 									var bareStyleClass = tmpArr[ii].replace(":", "-");
-									var breakPointClass = breakpoint + "-" + bareStyleClass;
+									var breakPointClass = breakPoint + "-" + bareStyleClass;
 									allBreakPointClasses.push(breakPointClass);
 									if (dictionary[bareStyleClass]) {
-										if (addedCssClasses.indexOf(breakpoint + "-" + bareStyleClass) === -1) {
-											cssString += dictionary[bareStyleClass](breakPointCss, breakpoint, bareStyleClass);
-										} else {
-											console.log("Already added: " + breakpoint + "-" + bareStyleClass);
-										}
+                                        if (!cssStructure[breakPoint]) {
+                                            cssStructure[breakPoint] = {};
+                                        }
+                                        cssStructure[breakPoint][bareStyleClass] = addStyleClass(breakPointClass, bareStyleClass);
 									} else {
-										console.log("CSS generator for " + breakpoint + "-" + bareStyleClass + " not found!");
+										console.log("CSS generator for " + breakPoint + "-" + bareStyleClass + " not found!");
 									}
 								}
 							}
@@ -63,49 +96,14 @@ Template.prototype.compile = function () {
 					}
 				}
 			}
-			var resultClassString = allBreakPointClasses.join(" ");
-
+            var resultClassString = allBreakPointClasses.join(" ");
 			if (resultClassString.length > 0) {
 				var regExp3 = new RegExp(escapeRegExp(replaceUs), "g");
 				rawHtml = rawHtml.replace(regExp3, resultClassString);
 			}
 		}
 	}
-	return { rawHtml: rawHtml, cssString: cssString };
-};
-
-var replaceFullClassName = function (template, fullStyleClass) {
-	var template2 = template.replace("fullClassName", fullStyleClass);
-	return template2;
-};
-
-var dictionary = {
-	"bt-no": function (breakPointCss, breakpoint, bareStyleClass) {
-		var template = breakPointCss.replace("placeholder", "border-top: none;");
-		var template2 = template.replace("bareStyleClass", bareStyleClass);
-		var template3 = replaceFullClassName(template2, breakpoint + "-" + bareStyleClass);
-		addedCssClasses.push(breakpoint + "-bt-no");
-		return template3;
-	},
-	left: function (breakPointCss, breakpoint, bareStyleClass) {
-		var template = breakPointCss.replace("placeholder", "float: left;");
-		var template2 = template.replace("bareStyleClass", bareStyleClass);
-		var template3 = replaceFullClassName(template2, breakpoint + "-" + bareStyleClass);
-		addedCssClasses.push(breakpoint + "-left");		
-		return template3;
-	},
-	right: function (breakPointCss, breakpoint, bareStyleClass) {
-		var template = breakPointCss.replace("placeholder", "float: right;");
-		var template2 = template.replace("bareStyleClass", bareStyleClass);
-		var template3 = replaceFullClassName(template2, breakpoint + "-" + bareStyleClass);
-		addedCssClasses.push(breakpoint + "-right");
-		return template3;
-	}
-};
-
-var breakPointStyle = function (breakPoint) {
-	var template = "@media screen and (min-width: " + breakpoints[breakPoint] + "px) {\n/*" + breakPoint + "-bareStyleClass*/\n\t.fullClassName {\n\t\tplaceholder\n\t}\n}\n\n";
-	return template;
+	return rawHtml;
 };
 
 // Include gulp
@@ -117,6 +115,7 @@ var jshint = require('gulp-jshint');
 var glob = require("glob");
 var fs = require('fs'); // File system
 var Promise = require('promise');
+var promisify = require('deferred').promisify;
 
 // Clean
 gulp.task('clean', function () {
@@ -133,34 +132,40 @@ gulp.task('jslint', function() {
 
 gulp.task('glob', function() {
 	
-	return glob("public/templates/*.html", {}, function (er, files) {
-		
-		var saveFile = function (fileName, data) {
-			fs.writeFile(fileName, data, "utf-8", function (err) {
-				if (err) {
-					console.log(err);
-				} else {
-					console.log("The file was saved!");
-				}
-			});
-		};
-		
-		var handleFile = function (fileName) {
+	return new Promise(function (resolve, reject) {
+        glob("public/templates/*.html", {}, function (er, files) {
 
-			var read = Promise.denodeify(fs.readFile);
-			
-			read(fileName, "utf-8").then(function (rawHtml) {
-				var result = new Template(fileName, rawHtml).compile();
-				//console.info("public/views/" + fileName.substring(fileName.lastIndexOf("/") + 1));
-				saveFile("public/views/" + fileName.substring(fileName.lastIndexOf("/") + 1), result.rawHtml);
-				saveFile("public/css/once.css", result.cssString);
-			});
-		};
-		
-		for (var i = 0; i < files.length; i += 1) {
-			handleFile(files[i]);
-		}
-	});
+            var filesLeft = files.length;
+
+            var handleFile = function (fileName) {
+                console.info("handling " + fileName);
+                var read = Promise.denodeify(fs.readFile);
+                
+                read(fileName, "utf-8").then(function (rawHtml) {
+                    var result = new Template(fileName, rawHtml).compile();
+                    saveFile("public/views/" + fileName.substring(fileName.lastIndexOf("/") + 1), result);
+                    filesLeft -= 1;
+                    if (filesLeft < 1) {
+                        console.info("Files read!");
+                        resolve();                            
+                    }
+                });
+            };
+
+            while (files.length) {
+                handleFile(files.shift());
+            }
+        });
+    });
+});
+
+gulp.task('updateCSS', ['glob'], function () {
+    var styles = "";
+    console.info("Updating once.css");
+    for (var breakPoint in cssStructure) {
+        styles += breakPointStyle(breakPoint);
+    }
+    saveFile("public/css/once.css", styles);
 });
 
 // Watch Files For Changes
@@ -170,5 +175,5 @@ gulp.task('watch', function() {
 });
 
 // Default Task
-gulp.task('default', ['clean', 'glob', 'watch']);
+gulp.task('default', ['clean', 'glob', 'updateCSS', 'watch']);
 
