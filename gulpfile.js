@@ -1,5 +1,16 @@
 "use strict";
 
+// Include gulp
+var gulp = require('gulp');
+
+// Include plugins
+var clean = require('gulp-clean');
+var jshint = require('gulp-jshint');
+var glob = require("glob");
+var fs = require('fs'); // File system
+var Promise = require('promise');
+var promisify = require('deferred').promisify;
+
 var breakPoints = {
 	xs: "320px",
 	sm: "480px",
@@ -14,7 +25,10 @@ var dictionary = {
 	},
 	right: {
 		css: "float: right;"
-	}
+	},
+    inline: {
+        css: "display: inline;"
+    }
 };
 
 var breakPointStyle = function (breakPoint) {
@@ -106,17 +120,6 @@ Template.prototype.compile = function () {
 	return rawHtml;
 };
 
-// Include gulp
-var gulp = require('gulp');
-
-// Include plugins
-var clean = require('gulp-clean');
-var jshint = require('gulp-jshint');
-var glob = require("glob");
-var fs = require('fs'); // File system
-var Promise = require('promise');
-var promisify = require('deferred').promisify;
-
 // Clean
 gulp.task('clean', function () {
   gulp.src('build', {read: false})
@@ -133,20 +136,19 @@ gulp.task('jslint', function() {
 gulp.task('glob', function() {
 	
 	return new Promise(function (resolve, reject) {
-        glob("public/templates/*.html", {}, function (er, files) {
+        glob("exampleProject/public/templates/*.html", {}, function (er, files) {
 
             var filesLeft = files.length;
 
             var handleFile = function (fileName) {
-                console.info("handling " + fileName);
+
                 var read = Promise.denodeify(fs.readFile);
                 
                 read(fileName, "utf-8").then(function (rawHtml) {
                     var result = new Template(fileName, rawHtml).compile();
-                    saveFile("public/views/" + fileName.substring(fileName.lastIndexOf("/") + 1), result);
+                    saveFile("exampleProject/public/views/" + fileName.substring(fileName.lastIndexOf("/") + 1), result);
                     filesLeft -= 1;
                     if (filesLeft < 1) {
-                        console.info("Files read!");
                         resolve();                            
                     }
                 });
@@ -161,17 +163,16 @@ gulp.task('glob', function() {
 
 gulp.task('updateCSS', ['glob'], function () {
     var styles = "";
-    console.info("Updating once.css");
     for (var breakPoint in cssStructure) {
         styles += breakPointStyle(breakPoint);
     }
-    saveFile("public/css/once.css", styles);
+    saveFile("exampleProject/public/css/once.css", styles);
 });
 
 // Watch Files For Changes
 gulp.task('watch', function() {
   gulp.watch('gulpfile.js', ['jslint']);
-  gulp.watch('public/templates/*.html', ['glob']);
+  gulp.watch('exampleProject/public/templates/*.html', ['glob']);
 });
 
 // Default Task
