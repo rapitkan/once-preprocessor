@@ -9,7 +9,6 @@ var jshint = require('gulp-jshint');
 var glob = require("glob");
 var fs = require('fs'); // File system
 var Promise = require('promise');
-var promisify = require('deferred').promisify;
 
 var breakPoints = {
 	xs: "320px",
