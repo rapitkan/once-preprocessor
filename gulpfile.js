@@ -27,6 +27,9 @@ var dictionary = {
 	},
     inline: {
         css: "display: inline;"
+    },
+    'p-eta': {
+    	css: "padding: 1em;"
     }
 };
 
@@ -39,7 +42,7 @@ var breakPointStyle = function (breakPoint) {
 };
 
 var addStyleClass = function (fullStyleClass, bareStyleClass) {
-	return "\t/*" + fullStyleClass + "*/\n\t." + fullStyleClass + "{\n\t\t" + dictionary[bareStyleClass].css + "\n\t}\n";
+	return "\t/*" + fullStyleClass + "*/\n\t." + fullStyleClass + " {\n\t\t" + dictionary[bareStyleClass || fullStyleClass].css + "\n\t}\n";
 };
 var cssString = "";
 var cssStructure = {};
@@ -48,76 +51,120 @@ var escapeRegExp = function(str) {
 	return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
 };
 
-var saveFile = function (fileName, data) {
 
-    var write = Promise.denodeify(fs.writeFile);
 
-    write(fileName, data, "utf-8").then(function () {
+
+var FileHandler = function () {
+	this.fileList = [];
+};
+
+FileHandler.prototype.listFile = function (fileName) {
+	this.fileList[fileName] = new File(fileName);
+	return this.fileList[fileName];
+};
+
+var File = function (name, content) {
+	this.name = name;
+	this.content = content;
+};
+
+File.prototype.read = function (callback) {
+    var self = this,
+    	read = Promise.denodeify(fs.readFile);
+    read(this.name, "utf-8").then(function (content) {
+    	self.content = content;
+    	return callback(self);
+    });
+};
+
+File.prototype.save = function (content) {
+	var self = this;
+	this.content = content;
+
+	var write = Promise.denodeify(fs.writeFile);
+
+    return write(this.name, this.content, "utf-8").then(function (err) {
         if (err) {
             console.log(err);
         } else {
-            console.log("The file " + fileName + " was saved!");
+            console.log("The file " + self.name + " was saved!");
         }
     });
 };
 
-function Template(fileName, content) {
-	this.fileName = fileName;
-	this.content = content;
-}
-
-Template.prototype.compile = function () {
+File.prototype.compile = function () {
 	var rawHtml = rawHtml ? rawHtml : this.content;
 	var pattern = new RegExp(/class=".{1,}"/g);
 	var matches = rawHtml.match(pattern);
-	var replaceUs = "";
+	var classes = "";
 	var allBreakPointClasses = [];
+	var compiledClasses;
+	var customClasses;
+	var missingClasses;
+	var matchNotFound;
 	if (matches) {
 		for (var i = 0; i < matches.length; i += 1) {
-			var pattern2 = new RegExp(/"(.{1,})"/);
-			var match2 = pattern2.exec(matches[i]);
-			if (match2) {
-				replaceUs = match2[0].substring(1, match2[0].length - 1);
-				allBreakPointClasses = [];
-				for (var breakPoint in breakPoints) {
-					if (breakPoints.hasOwnProperty(breakPoint)) {
-						var regExp = breakPoint + "\\(.{1,}?\\)";
-						var pattern3 = new RegExp(regExp);
-						var match3 = replaceUs.match(pattern3);
-						if (match3) {
-							var pattern4 = new RegExp(/\(.{1,}\)/);
-							var match4 = match3[0].match(pattern4);
-							if (match4) {
-								var connectUs = match4[0].substring(1, match4[0].length-1);
-								var tmpArr = connectUs.split(",");
-								var breakPointClasses = [];
-								for (var ii = 0; ii < tmpArr.length; ii += 1) {
-									var bareStyleClass = tmpArr[ii].replace(":", "-");
-									var breakPointClass = breakPoint + "-" + bareStyleClass;
-									allBreakPointClasses.push(breakPointClass);
-									if (dictionary[bareStyleClass]) {
-                                        if (!cssStructure[breakPoint]) {
-                                            cssStructure[breakPoint] = {};
-                                        }
-                                        cssStructure[breakPoint][bareStyleClass] = addStyleClass(breakPointClass, bareStyleClass);
-									} else {
-										console.log("CSS generator for " + breakPoint + "-" + bareStyleClass + " not found!");
+			compiledClasses = [];
+			missingClasses = [];
+			customClasses = [];
+			classes = matches[i].substring(7, matches[i].length - 1).split(" ");
+			console.info("classes: ", classes);
+			for (var ii = 0; ii < classes.length; ii += 1) {
+				if (dictionary[classes[ii]]) {
+					cssStructure[classes[ii]] = addStyleClass(classes[ii]);
+					compiledClasses.push(classes[ii]);
+				} else {
+					console.info("Handling class: ", classes[ii]);
+					matchNotFound = true;
+					for (var breakPoint in breakPoints) {
+						if (breakPoints.hasOwnProperty(breakPoint)) {
+							var regExp = breakPoint + "\\(.{1,}?\\)";
+							var pattern3 = new RegExp(regExp);
+							var match3 = classes[ii].match(pattern3);
+							if (match3) {
+								matchNotFound = false;
+								var pattern4 = new RegExp(/\(.{1,}\)/);
+								var match4 = match3[0].match(pattern4);
+								if (match4) {
+									var connectUs = match4[0].substring(1, match4[0].length - 1);
+									var tmpArr = connectUs.split(",");
+									for (var iii = 0; iii < tmpArr.length; iii += 1) {
+										var bareStyleClass = tmpArr[iii].replace(":", "-");
+										var breakPointClass = breakPoint + "-" + bareStyleClass;
+										if (dictionary[bareStyleClass]) {
+		                                    if (!cssStructure[breakPoint]) {
+		                                        cssStructure[breakPoint] = {};
+		                                    }
+		                                    cssStructure[breakPoint][bareStyleClass] = addStyleClass(breakPointClass, bareStyleClass);
+		                                    compiledClasses.push(breakPointClass);
+										} else {
+											missingClasses.push(breakPointClass);
+											console.log("CSS generator for " + breakPoint + "-" + bareStyleClass + " not found!");
+										}
 									}
 								}
 							}
 						}
 					}
+					if (matchNotFound) {
+						customClasses.push(classes[ii]);
+						console.info("Class '" + classes[ii] + "' is a custom class.");
+					}
 				}
 			}
-            var resultClassString = allBreakPointClasses.join(" ");
-			if (resultClassString.length > 0) {
-				var regExp3 = new RegExp(escapeRegExp(replaceUs), "g");
-				rawHtml = rawHtml.replace(regExp3, resultClassString);
+			console.info("Compiled classes for ", classes, " are: ", compiledClasses);
+			if (missingClasses.length) {
+				console.info("Missing from the dictionary: ", missingClasses);				
 			}
+			var regExp3 = new RegExp(escapeRegExp(classes.join(" ")), "g");
+			rawHtml = rawHtml.replace(regExp3, [customClasses.join(" "), compiledClasses.join(" "), missingClasses.join(" ")].join(" "));
 		}
 	}
 	return rawHtml;
 };
+
+var onceStyleSheetPath = "exampleProject/public/css/once.css";
+var onceStyleSheet = new FileHandler().listFile(onceStyleSheetPath);
 
 // Clean
 gulp.task('clean', function () {
@@ -133,28 +180,28 @@ gulp.task('jslint', function() {
 });
 
 gulp.task('glob', function() {
-	
+
 	return new Promise(function (resolve, reject) {
         glob("exampleProject/public/templates/*.html", {}, function (er, files) {
 
+        	var templateFile, viewFile;
+        	var fileHandler = new FileHandler();
+
             var filesLeft = files.length;
 
-            var handleFile = function (fileName) {
-
-                var read = Promise.denodeify(fs.readFile);
-                
-                read(fileName, "utf-8").then(function (rawHtml) {
-                    var result = new Template(fileName, rawHtml).compile();
-                    saveFile("exampleProject/public/views/" + fileName.substring(fileName.lastIndexOf("/") + 1), result);
-                    filesLeft -= 1;
-                    if (filesLeft < 1) {
-                        resolve();                            
-                    }
-                });
-            };
-
             while (files.length) {
-                handleFile(files.shift());
+                templateFile = fileHandler.listFile(files.shift());
+            	templateFile.read(function (file) {
+            		viewFile = fileHandler.listFile("exampleProject/public/views/" + file.name.substring(file.name.lastIndexOf("/") + 1));
+            		console.info(viewFile);
+            		viewFile.save(file.compile()).then(function () {
+            			filesLeft -= 1;
+	            		if (!filesLeft) {
+	            			console.info("Saving the Once style sheet...");
+	            			resolve();
+	            		}            			
+            		});
+            	});
             }
         });
     });
@@ -162,11 +209,16 @@ gulp.task('glob', function() {
 
 gulp.task('updateCSS', ['glob'], function () {
     var styles = "";
-    for (var breakPoint in cssStructure) {
-        styles += breakPointStyle(breakPoint);
+    console.info(cssStructure);
+    for (var key in cssStructure) {
+    	if (breakPoints[key]) {
+        	styles += breakPointStyle(key);
+    	} else  {
+    		styles += cssStructure[key];
+    	}
     }
-    saveFile("exampleProject/public/css/once.css", styles);
-});
+    onceStyleSheet.save(styles);
+});    		
 
 // Watch Files For Changes
 gulp.task('watch', function() {
