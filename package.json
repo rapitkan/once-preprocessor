@@ -38,6 +38,6 @@
   },
   "main": "gulpfile.js",
   "directories": {
-    "exampleProject": "exampleProject",
+    "exampleProject": "exampleProject"
   }
 }
