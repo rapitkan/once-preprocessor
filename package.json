@@ -1,6 +1,7 @@
 {
   "name": "starter-node-angular",
-  "main": "server.js",
+  "version": "0.0.0",
+  "description": "HTML preprocessor for Once CSS framework",
   "dependencies": {
     "express": "~3.5.0",
     "mongoose": "~3.8.3"
@@ -11,5 +12,32 @@
     "gulp-jshint": "^1.5.1",
     "glob": "^3.2.9",
     "promise": "^4.0.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/rapitkan/once-preprocessor.git"
+  },
+  "keywords": [
+    "once",
+    "css",
+    "framework",
+    "atomic",
+    "oocss",
+    "html",
+    "preprocessor"
+  ],
+  "bugs": {
+    "url": "https://github.com/rapitkan/once-preprocessor/issues"
+  },
+  "scripts": {
+    "test": "",
+    "start": "gulp"
+  },
+  "engines": {
+    "node": ">=0.8.0"
+  },
+  "main": "gulpfile.js",
+  "directories": {
+    "exampleProject": "exampleProject",
+  },
 }
