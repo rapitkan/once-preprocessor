@@ -35,6 +35,6 @@ and the specific css markup would be:
 2. Download & install Node.js
 3. Move to the project folder
 4. Run: npm install (use sudo if you get errors without it)
-5. Type: gulp
+5. Type: npm start
 6. Open project with your favourite editor
 7. Start coding
