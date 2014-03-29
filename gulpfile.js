@@ -30,6 +30,15 @@ var dictionary = {
     },
     'p-eta': {
     	css: "padding: 1em;"
+    },
+    'f-eta': {
+    	css: "font-size: 1em"
+    },
+    'f-omega': {
+    	css: "font-size: 2em"
+    },
+    'f-alpha': {
+    	css: "font-size: 3em"
     }
 };
 
@@ -214,7 +223,11 @@ gulp.task('updateCSS', ['glob'], function () {
     	if (breakPoints[key]) {
         	styles += breakPointStyle(key);
     	} else  {
-    		styles += cssStructure[key];
+    		styles += cssStructure[key]
+    					.replace(/\t/g, "")
+    					.replace(/\n/g, "")
+    					.replace(/\{/g, "{ ")
+    					.replace(/\}/g, " }") + "\n";
     	}
     }
     onceStyleSheet.save(styles);

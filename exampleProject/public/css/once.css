@@ -1,20 +1,10 @@
-	/*p-eta*/
-	.p-eta {
-		padding: 1em;
-	}
+/*p-eta*/.p-eta { padding: 1em; }
 
-@media screen and (min-width: 640px) {
-	/*md-left*/
-	.md-left {
-		float: left;
-	}
-	/*md-right*/
-	.md-right {
-		float: right;
-	}
-
-}
 @media screen and (min-width: 320px) {
+	/*xs-f-eta*/
+	.xs-f-eta {
+		font-size: 1em
+	}
 	/*xs-right*/
 	.xs-right {
 		float: right;
@@ -26,9 +16,28 @@
 
 }
 @media screen and (min-width: 480px) {
+	/*sm-f-omega*/
+	.sm-f-omega {
+		font-size: 2em
+	}
 	/*sm-left*/
 	.sm-left {
 		float: left;
+	}
+
+}
+@media screen and (min-width: 640px) {
+	/*md-left*/
+	.md-left {
+		float: left;
+	}
+	/*md-f-alpha*/
+	.md-f-alpha {
+		font-size: 3em
+	}
+	/*md-right*/
+	.md-right {
+		float: right;
 	}
 
 }
