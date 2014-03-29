@@ -32,13 +32,28 @@ var dictionary = {
     	css: "padding: 1em;"
     },
     'f-eta': {
-    	css: "font-size: 1em"
+    	css: "font-size: 13px;"
     },
     'f-omega': {
-    	css: "font-size: 2em"
+    	css: "font-size: 10px;"
     },
     'f-alpha': {
-    	css: "font-size: 3em"
+    	css: "font-size: 16px;"
+    },
+    'float-left': {
+    	css: "float: left;"
+    },
+    'b-alpha': {
+    	css: "border: 1px solid #000;"
+    },
+    'w-block': {
+    	css: "width: 20px;"
+    },
+    'h-block': {
+    	css: "height: 20px;"
+    },
+    'clear-both': {
+    	css: "clear: both;"
     }
 };
 
@@ -59,9 +74,6 @@ var cssStructure = {};
 var escapeRegExp = function(str) {
 	return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
 };
-
-
-
 
 var FileHandler = function () {
 	this.fileList = [];

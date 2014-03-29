@@ -1,10 +1,9 @@
-/*p-eta*/.p-eta { padding: 1em; }
+/*float-left*/.float-left { float: left; }
+/*b-alpha*/.b-alpha { border: 1px solid #000; }
+/*w-block*/.w-block { width: 20px; }
+/*h-block*/.h-block { height: 20px; }
 
 @media screen and (min-width: 320px) {
-	/*xs-f-eta*/
-	.xs-f-eta {
-		font-size: 1em
-	}
 	/*xs-right*/
 	.xs-right {
 		float: right;
@@ -16,10 +15,6 @@
 
 }
 @media screen and (min-width: 480px) {
-	/*sm-f-omega*/
-	.sm-f-omega {
-		font-size: 2em
-	}
 	/*sm-left*/
 	.sm-left {
 		float: left;
@@ -27,17 +22,13 @@
 
 }
 @media screen and (min-width: 640px) {
-	/*md-left*/
-	.md-left {
-		float: left;
-	}
-	/*md-f-alpha*/
-	.md-f-alpha {
-		font-size: 3em
-	}
 	/*md-right*/
 	.md-right {
 		float: right;
+	}
+	/*md-f-alpha*/
+	.md-f-alpha {
+		font-size: 16px;
 	}
 
 }
